@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="Black">
+    <option name="sdkName" value="Python 3.14 (Team_QuadraTech)" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="E:\Pycharm\PythonProject\Find_Your_Roomie\.venv" project-jdk-type="Python SDK" />
 </project>
