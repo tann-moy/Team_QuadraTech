@@ -52,3 +52,30 @@ class Room(models.Model):
         return (self.latitude, self.longitude)
 
 
+class RoomImage(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="rooms/")
+    is_primary = models.BooleanField(default=False)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def set_primary(self):
+        self.room.images.update(is_primary=False)
+        self.is_primary = True
+        self.save(update_fields=["is_primary"])
+
+
+class RentalRequest(models.Model):
+    """A tenant asks an owner for a room."""
+    STATUS = [("pending", "Pending"), ("accepted", "Accepted"), ("rejected", "Rejected")]
+    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rental_requests")
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="requests")
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("tenant", "room")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.tenant} -> {self.room} [{self.status}]"
