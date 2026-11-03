@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Roommate matches{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="page-title">Recommended roommates</h2>
+  <p class="text-muted">Tenants with a compatibility of 60% or more. Same gender only.</p>
+  {% for m in items %}
+  <div class="card-soft p-4 mb-4"><div class="row g-4">
+    <div class="col-lg-5">
+      <div class="d-flex gap-3 align-items-center mb-3">
+        <div class="score {% if m.compatibility_score >= 80 %}high{% else %}mid{% endif %}">{{ m.compatibility_score|floatformat:0 }}%</div>
+        <div>{% if m.matched_user.profile.profile_picture %}{% else %}{% endif %}<h5 class="m-0">{{ m.matched_user.profile.name }}</h5>
+          <div class="text-muted small">{{ m.matched_user.profile.organization|default:"Tenant" }}</div>
+          <div class="small"><i class="bi bi-signpost"></i> {{ m.distance_km|floatformat:1 }} km from your preferred area</div></div></div>
+      <span class="pill">৳{{ m.pref.budget_min }} - ৳{{ m.pref.budget_max }}</span><span class="pill">{{ m.pref.get_food_type_display }}</span>
+      <span class="pill">{{ m.pref.get_smoking_display }}</span><span class="pill">{{ m.pref.get_cleanliness_display }}</span><span class="pill">Sleeps {{ m.pref.sleep_time|time:"H:i" }}</span>
+      {% if m.req and m.req.status == "accepted" %}<div class="alert alert-success py-2 mt-2 mb-0"><i class="bi bi-telephone"></i> {{ m.matched_user.profile.phone|default:"No phone" }}</div>{% endif %}
+      <div class="mt-3 d-flex gap-2 flex-wrap">
+        {% if m.req %}<span class="badge-status st-{{ m.req.status }}">Request {{ m.req.get_status_display|lower }}</span>
+        {% else %}<form method="post" action="{% url 'matching:send_request' m.matched_user.pk %}" class="d-flex gap-2">{% csrf_token %}<input name="message" class="form-control form-control-sm" placeholder="Say hi..."><button class="btn btn-primary btn-sm text-nowrap">Send request</button></form>{% endif %}
+        {% if m.status == "suggested" %}
+        <form method="post" action="{% url 'matching:match_action' m.pk 'accepted' %}">{% csrf_token %}<button class="btn btn-outline-primary btn-sm">Accept match</button></form>
+        <form method="post" action="{% url 'matching:match_action' m.pk 'rejected' %}">{% csrf_token %}<button class="btn btn-outline-danger btn-sm">Reject</button></form>
+        {% else %}<span class="badge-status st-accepted">Match accepted</span>{% endif %}
+      </div>
+    </div>
+    <div class="col-lg-3"><h6 class="small text-uppercase text-muted">Why you match</h6>
+      {% for k, v in m.get_match_details.items %}<div class="mb-2"><div class="bar-label"><span>{{ k|capfirst }}</span><span>{{ v|floatformat:0 }}%</span></div>
+        <div class="progress"><div class="progress-bar" style="width:{{ v|floatformat:0 }}%"></div></div></div>{% endfor %}</div>
+    <div class="col-lg-4"><h6 class="small text-uppercase text-muted">Vacant rooms near you both</h6>
+      {% for r in m.nearby %}<a class="near-room" href="{% url 'rooms:detail' r.pk %}"><span><strong>{{ r.title }}</strong><br><small class="text-muted">{{ r.owner.profile.name }} &middot; {{ r.distance|floatformat:1 }} km</small></span><span class="price fs-6">৳{{ r.rent }}</span></a>
+      {% empty %}<p class="text-muted small">No vacant rooms within 5 km yet.</p>{% endfor %}</div>
+  </div></div>
+  {% empty %}<div class="card-soft p-5 text-center text-muted">No matches yet. More tenants will appear as they join.</div>{% endfor %}
+</div>
+{% endblock %}

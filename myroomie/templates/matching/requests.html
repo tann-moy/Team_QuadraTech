@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="page-title mb-4">Roommate requests</h2>
+  <div class="row g-4">
+    <div class="col-lg-6"><div class="card-soft p-4"><h5>Received</h5>
+      {% for r in received %}<div class="border-bottom py-3"><div class="d-flex justify-content-between"><strong>{{ r.sender.profile.name }}</strong><span class="badge-status st-{{ r.status }}">{{ r.get_status }}</span></div>
+        <div class="small text-muted">{{ r.message|default:"No message" }}</div>
+        {% if r.status == "pending" %}<div class="d-flex gap-2 mt-2">
+          <form method="post" action="{% url 'matching:roommate_respond' r.pk 'accept' %}">{% csrf_token %}<button class="btn btn-sm btn-primary">Accept</button></form>
+          <form method="post" action="{% url 'matching:roommate_respond' r.pk 'reject' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Reject</button></form></div>
+        {% elif r.status == "accepted" %}<div class="small mt-1"><i class="bi bi-telephone"></i> {{ r.sender.profile.phone|default:"No phone" }}</div>{% endif %}</div>
+      {% empty %}<p class="text-muted m-0">Nothing yet.</p>{% endfor %}</div></div>
+    <div class="col-lg-6"><div class="card-soft p-4"><h5>Sent</h5>
+      {% for r in sent %}<div class="border-bottom py-3"><div class="d-flex justify-content-between"><strong>{{ r.receiver.profile.name }}</strong><span class="badge-status st-{{ r.status }}">{{ r.get_status }}</span></div>
+        {% if r.status == "accepted" %}<div class="small mt-1"><i class="bi bi-telephone"></i> {{ r.receiver.profile.phone|default:"No phone" }}</div>{% endif %}</div>
+      {% empty %}<p class="text-muted m-0">You haven't sent any requests.</p>{% endfor %}</div></div>
+  </div>
+</div>
+{% endblock %}

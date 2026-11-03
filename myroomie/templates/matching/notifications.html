@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width:760px"><h2 class="page-title mb-4">Notifications</h2>
+  {% for n in items %}<a href="{{ n.link|default:'#' }}" class="card-soft notif p-3 mb-2 d-block text-decoration-none text-reset"><div>{{ n.message }}</div><small class="text-muted">{{ n.created_at|timesince }} ago</small></a>
+  {% empty %}<div class="card-soft p-5 text-center text-muted">You're all caught up.</div>{% endfor %}</div>
+{% endblock %}
