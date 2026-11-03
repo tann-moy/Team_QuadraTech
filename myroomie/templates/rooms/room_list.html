@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Find Rooms - Find Your Roomie{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-3"><form class="card-soft p-3 filter-bar" method="get">
+      <h6 class="fw-bold mb-3"><i class="bi bi-funnel"></i> Filters</h6>
+      <input class="form-control mb-2" name="q" value="{{ g.q }}" placeholder="Area or keyword">
+      <div class="row g-2 mb-2"><div class="col"><input class="form-control" type="number" name="min_rent" value="{{ g.min_rent }}" placeholder="Min ৳"></div>
+        <div class="col"><input class="form-control" type="number" name="max_rent" value="{{ g.max_rent }}" placeholder="Max ৳"></div></div>
+      <select class="form-select mb-2" name="room_type"><option value="">Any room type</option>
+        {% for v, l in types %}<option value="{{ v }}" {% if g.room_type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+      <select class="form-select mb-2" name="available"><option value="1" {% if g.available != "0" %}selected{% endif %}>Vacant only</option><option value="0" {% if g.available == "0" %}selected{% endif %}>All rooms</option></select>
+      <select class="form-select mb-3" name="sort">
+        <option value="newest" {% if g.sort == "newest" %}selected{% endif %}>Newest</option>
+        <option value="rent_low" {% if g.sort == "rent_low" %}selected{% endif %}>Rent: low to high</option>
+        <option value="rent_high" {% if g.sort == "rent_high" %}selected{% endif %}>Rent: high to low</option>
+        {% if has_ref %}<option value="distance" {% if g.sort == "distance" %}selected{% endif %}>Nearest to me</option>{% endif %}</select>
+      <div class="small fw-semibold mb-1">Amenities</div>
+      {% for a in amenities %}<div class="form-check"><input class="form-check-input" type="checkbox" name="amenity" value="{{ a.id }}" id="am{{ a.id }}" {% if a.id|stringformat:"s" in selected_amenities %}checked{% endif %}>
+        <label class="form-check-label small" for="am{{ a.id }}"><i class="bi {{ a.icon }}"></i> {{ a.name }}</label></div>{% endfor %}
+      <button class="btn btn-primary w-100 mt-3">Apply</button>
+      <a href="{% url 'rooms:list' %}" class="btn btn-link w-100 btn-sm">Reset</a>
+    </form></div>
+    <div class="col-lg-9">
+      <h4 class="page-title mb-3">{{ total }} room{{ total|pluralize }} found</h4>
+      <div class="row g-4">
+        {% for room in page %}<div class="col-md-6 col-xl-4">{% include "partials/room_card.html" %}</div>
+        {% empty %}<div class="col-12"><div class="card-soft p-5 text-center text-muted">No rooms match your filters.</div></div>{% endfor %}
+      </div>
+      {% if page.paginator.num_pages > 1 %}<nav class="mt-4"><ul class="pagination justify-content-center">
+        {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.previous_page_number }}">&laquo;</a></li>{% endif %}
+        <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+        {% if page.has_next %}<li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.next_page_number }}">&raquo;</a></li>{% endif %}
+      </ul></nav>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

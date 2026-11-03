@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="page-title mb-1">{% if room %}Edit property{% else %}Add property{% endif %}</h2>
+<p class="text-muted">Fill in the room or flat details, upload photos and pin the exact location on the map.</p>
+<form method="post" enctype="multipart/form-data" class="card-soft p-4">{% csrf_token %}
+  {{ form.non_field_errors }}
+  <div class="row g-4">
+    <div class="col-lg-6"><div class="row g-3">
+      <div class="col-12"><label class="form-label">Title</label>{{ form.title }}{{ form.title.errors }}</div>
+      <div class="col-6"><label class="form-label">Monthly rent (৳)</label>{{ form.rent }}{{ form.rent.errors }}</div>
+      <div class="col-6"><label class="form-label">Room type</label>{{ form.room_type }}</div>
+      <div class="col-6"><label class="form-label">Available from</label>{{ form.available_from }}{{ form.available_from.errors }}</div>
+      <div class="col-6 d-flex align-items-end"><div class="form-check form-switch">{{ form.is_available }} <label class="form-check-label" for="id_is_available">Vacant now</label></div></div>
+      <div class="col-12"><label class="form-label">Description</label>{{ form.description }}{{ form.description.errors }}</div>
+      <div class="col-12"><label class="form-label">Amenities</label><div class="d-flex flex-wrap gap-3">
+        {% for cb in form.amenities %}<label class="form-check-label">{{ cb.tag }} {{ cb.choice_label }}</label>{% endfor %}</div></div>
+      <div class="col-12"><label class="form-label">Photos (select several)</label><input type="file" name="images" class="form-control" multiple accept="image/*"></div>
+    </div></div>
+    <div class="col-lg-6"><div class="row g-3">
+      <div class="col-12"><label class="form-label">Address / area</label>{{ form.location }}{{ form.location.errors }}</div>
+      <div class="col-6"><label class="form-label">Latitude</label>{{ form.latitude }}{{ form.latitude.errors }}</div>
+      <div class="col-6"><label class="form-label">Longitude</label>{{ form.longitude }}{{ form.longitude.errors }}</div>
+      <div class="col-12">{% include "partials/map_picker.html" with lat="id_latitude" lng="id_longitude" %}</div>
+    </div></div>
+  </div>
+  <button class="btn btn-primary mt-4">Save property</button> <a href="{% url 'rooms:owner_rooms' %}" class="btn btn-link">Cancel</a>
+</form>
+{% if room and room.images.exists %}
+<div class="card-soft p-4 mt-4"><h6>Current photos</h6><div class="row g-3">
+  {% for i in room.images.all %}<div class="col-6 col-md-3"><img src="{{ i.image.url }}" class="img-fluid rounded mb-2" style="height:120px;width:100%;object-fit:cover">
+    <div class="d-flex gap-1 align-items-center">{% if i.is_primary %}<span class="pill m-0">Cover</span>{% else %}
+      <form method="post" action="{% url 'rooms:image_primary' i.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary">Set cover</button></form>{% endif %}
+      <form method="post" action="{% url 'rooms:image_delete' i.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></div></div>{% endfor %}
+</div></div>{% endif %}
+{% endblock %}
