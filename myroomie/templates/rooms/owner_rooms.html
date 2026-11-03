@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="page-title m-0">My properties</h2><p class="text-muted m-0">Add, edit and control availability.</p></div>
+  <a class="btn btn-accent" href="{% url 'rooms:create' %}"><i class="bi bi-plus-lg"></i> Add property</a></div>
+<div class="row g-4">
+  {% for room in rooms %}<div class="col-md-6 col-xl-4"><div class="card-soft room-card">
+    {% with img=room.get_primary_image %}<div class="room-img" style="background-image:url('{% if img %}{{ img.image.url }}{% else %}https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800{% endif %}')">
+      <span class="tag badge-status {% if room.is_available %}st-vacant{% else %}st-taken{% endif %}">{% if room.is_available %}Vacant{% else %}Taken{% endif %}</span></div>{% endwith %}
+    <div class="p-3"><h6 class="fw-semibold m-0">{{ room.title }}</h6><div class="text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ room.location }}</div>
+      <div class="price mb-3">৳{{ room.rent }}<small class="text-muted fw-normal">/mo</small></div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm flex-fill" href="{% url 'rooms:edit' room.pk %}">Edit</a>
+        <form method="post" action="{% url 'rooms:toggle' room.pk %}" class="flex-fill">{% csrf_token %}<button class="btn btn-outline-primary btn-sm w-100">{% if room.is_available %}Mark taken{% else %}Mark vacant{% endif %}</button></form>
+        <form method="post" action="{% url 'rooms:delete' room.pk %}" onsubmit="return confirm('Delete this property?')">{% csrf_token %}<button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button></form>
+      </div></div></div></div>
+  {% empty %}<div class="col-12"><div class="card-soft p-5 text-center text-muted">No properties yet. Add your first room!</div></div>{% endfor %}
+</div>
+{% endblock %}

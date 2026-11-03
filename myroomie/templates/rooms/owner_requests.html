@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="page-title">Rental requests</h2><p class="text-muted">Tenants who asked about your rooms.</p>
+<div class="card-soft p-3"><div class="table-responsive"><table class="table table-clean m-0">
+  <thead><tr><th>Tenant</th><th>Property</th><th>Message</th><th>Status</th><th></th></tr></thead><tbody>
+  {% for r in reqs %}<tr><td><strong>{{ r.tenant.profile.name }}</strong><div class="small text-muted">{{ r.tenant.profile.organization }}{% if r.status == "accepted" %} &middot; {{ r.tenant.profile.phone }}{% endif %}</div></td>
+    <td><a href="{% url 'rooms:detail' r.room.pk %}">{{ r.room.title }}</a></td><td class="small">{{ r.message|default:"-" }}</td>
+    <td><span class="badge-status st-{{ r.status }}">{{ r.get_status_display }}</span></td>
+    <td class="text-end">{% if r.status == "pending" %}<div class="d-flex gap-1 justify-content-end">
+      <form method="post" action="{% url 'rooms:request_action' r.pk 'accepted' %}">{% csrf_token %}<button class="btn btn-sm btn-primary">Accept</button></form>
+      <form method="post" action="{% url 'rooms:request_action' r.pk 'rejected' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Reject</button></form></div>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No requests yet.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}
