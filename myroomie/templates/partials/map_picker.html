@@ -1,0 +1,10 @@
+{# Include with: lat="id_latitude" lng="id_longitude" #}
+<div class="input-group mb-2">
+    <input id="map-search" class="form-control" placeholder="Search an area, e.g. Dhanmondi">
+    <button type="button" id="map-search-btn" class="btn btn-primary"><i class="bi bi-search"></i></button>
+    <button type="button" id="locate-btn" class="btn btn-outline-primary" title="Use my location"><i
+            class="bi bi-crosshair"></i></button>
+</div>
+<div id="map-picker" data-lat-input="{{ lat }}" data-lng-input="{{ lng }}"></div>
+<small class="text-muted">Click on the map to pick the exact point. Latitude and longitude fill in
+    automatically.</small>
