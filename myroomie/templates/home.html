@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero"><div class="container"><div class="row"><div class="col-lg-7">
+  <span class="pill">Smart rental &amp; roommate matching</span>
+  <h1 class="mt-3">Found a room you like &mdash; but can you find the <span class="text-warning">right person</span> to live with?</h1>
+  <p class="lead my-4">Search rooms, compare lifestyles, and meet compatible roommates. Move in, settle down, with a roommate who washes the dishes!</p>
+  <form class="search-card d-flex gap-2" action="{% url 'rooms:list' %}" method="get">
+    <input class="form-control form-control-lg" name="q" placeholder="Search by area, e.g. Mirpur, Uttara...">
+    <button class="btn btn-accent px-4"><i class="bi bi-search"></i> Search</button></form>
+</div></div></div></section>
+
+<section class="container py-5">
+  <h2 class="text-center page-title mb-5">How it works</h2>
+  <div class="row g-4 text-center">
+    <div class="col-md-3"><div class="step-icon mx-auto"><i class="bi bi-person-plus"></i></div><h5>1. Register</h5><p class="text-muted">Join as a tenant or a property owner.</p></div>
+    <div class="col-md-3"><div class="step-icon mx-auto"><i class="bi bi-sliders"></i></div><h5>2. Set preferences</h5><p class="text-muted">Budget, location, food, sleep and cleanliness.</p></div>
+    <div class="col-md-3"><div class="step-icon mx-auto"><i class="bi bi-people"></i></div><h5>3. Get matched</h5><p class="text-muted">See compatible roommates with a % score.</p></div>
+    <div class="col-md-3"><div class="step-icon mx-auto"><i class="bi bi-key"></i></div><h5>4. Move in</h5><p class="text-muted">Send a request and find a vacant room nearby.</p></div>
+  </div>
+</section>
+
+<section class="container pb-5"><div class="row g-4">
+  <div class="col-md-6"><div class="role-card role-tenant"><h3>I'm looking for a room</h3><p>Filter rooms and find a lifestyle-compatible roommate.</p><a href="{% url 'accounts:register' %}" class="btn btn-accent align-self-start">Join as Tenant</a></div></div>
+  <div class="col-md-6"><div class="role-card role-owner"><h3>I own a property</h3><p>List rooms, add photos and reach suitable tenants.</p><a href="{% url 'accounts:register' %}" class="btn btn-accent align-self-start">Join as Owner</a></div></div>
+</div></section>
+{% endblock %}
