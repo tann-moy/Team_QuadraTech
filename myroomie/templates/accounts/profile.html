@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width:1000px">
+  <h2 class="page-title mb-1">{% if role == "owner" %}Owner profile{% else %}My profile{% endif %}</h2>
+  <p class="text-muted">{% if role == "owner" %}Tenants see this when you list a property.{% else %}Potential roommates see this profile.{% endif %}</p>
+  <form method="post" enctype="multipart/form-data" class="card-soft p-4">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">Full name</label>{{ form.name }}</div>
+      <div class="col-md-6"><label class="form-label">Phone</label>{{ form.phone }}</div>
+      <div class="col-md-6"><label class="form-label">{{ form.organization.label }}</label>{{ form.organization }}</div>
+      <div class="col-md-6"><label class="form-label">Profile picture</label>{{ form.profile_picture }}</div>
+      <div class="col-12"><label class="form-label">Bio</label>{{ form.bio }}</div>
+      <div class="col-12"><label class="form-label">Reference location name</label>{{ form.ref_loc }}</div>
+      <div class="col-md-6"><label class="form-label">Latitude</label>{{ form.ref_latitude }}</div>
+      <div class="col-md-6"><label class="form-label">Longitude</label>{{ form.ref_longitude }}</div>
+      <div class="col-12">{% include "partials/map_picker.html" with lat="id_ref_latitude" lng="id_ref_longitude" %}</div>
+    </div>
+    <button class="btn btn-primary mt-4">Save profile</button>
+  </form>
+</div>
+{% endblock %}
