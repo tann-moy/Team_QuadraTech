@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div><h2 class="page-title m-0">Welcome, {{ user.profile.name }}</h2>
+        <p class="text-muted m-0">Manage your properties and reach suitable tenants.</p></div>
+    <a class="btn btn-accent" href="{% url 'rooms:create' %}"><i class="bi bi-plus-lg"></i> Add property</a></div>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card-soft stat">
+            <div class="ico"><i class="bi bi-building"></i></div>
+            <div><h3>{{ room_count }}</h3><small>Properties</small></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-soft stat">
+            <div class="ico"><i class="bi bi-door-open"></i></div>
+            <div><h3>{{ vacant_count }}</h3><small>Vacant rooms</small></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-soft stat">
+            <div class="ico"><i class="bi bi-inbox"></i></div>
+            <div><h3>{{ pending_count }}</h3><small>Pending requests</small></div>
+        </div>
+    </div>
+</div>
+<div class="card-soft p-4">
+    <div class="d-flex justify-content-between mb-2"><h5 class="m-0">Latest pending requests</h5><a
+            href="{% url 'rooms:owner_requests' %}">View all</a></div>
+    {% for r in pending %}
+    <div class="d-flex justify-content-between align-items-center border-bottom py-2"><span><strong>{{ r.tenant.profile.name }}</strong> <span
+            class="text-muted">for {{ r.room.title }}</span></span><span class="badge-status st-pending">Pending</span>
+    </div>
+    {% empty %}<p class="text-muted m-0">No pending requests.</p>{% endfor %}
+</div>
+{% endblock %}

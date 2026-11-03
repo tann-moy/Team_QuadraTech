@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Login - Find Your Roomie{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-image"><h2 class="fw-bold">Welcome back</h2><p>Connecting people with the right home and the right roommate.</p></div>
+  <div class="auth-form"><div class="inner">
+    <h3 class="page-title">Login</h3><p class="text-muted">Tenants and owners sign in here.</p>
+    <form method="post">{% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>{% endif %}
+      <div class="mb-3"><label class="form-label">Username</label>{{ form.username }}</div>
+      <div class="mb-3"><label class="form-label">Password</label>{{ form.password }}</div>
+      <button class="btn btn-primary w-100">Login</button>
+    </form>
+    <p class="mt-3 text-center text-muted">New here? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+  </div></div>
+</div>
+{% endblock %}
