@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% block title %}{{ room.title }}{% endblock %}
+
+{% block content %}
+
+{% with img=room.get_primary_image %}
+
+<div class="container py-4">
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+
+            <div class="gallery-main" id="main-img"
+                 style="background-image:url('{% if img %}{{ img.image.url }}{% else %}https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800{% endif %}')">
+            </div>
+
+            {% if room.images.count > 1 %}
+            <div class="gallery-thumbs">
+                {% for i in room.images.all %}
+                <img src="{{ i.image.url }}" alt=""
+                     onclick="document.getElementById('main-img').style.backgroundImage='url('+this.src+')'">
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card-soft p-4 mt-4">
+
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+
+                    <h3 class="page-title m-0">{{ room.title }}</h3>
+
+                    <span class="badge-status {% if room.is_available %}st-vacant{% else %}st-taken{% endif %}">
+                        {% if room.is_available %}Vacant{% else %}Taken{% endif %}
+                    </span>
+
+                </div>
+
+                <p class="text-muted">
+                    <i class="bi bi-geo-alt"></i>
+                    {{ room.location }} &middot;
+                    {{ room.get_room_type_display }} &middot;
+                    Available from {{ room.available_from|date:"d M Y" }}
+                </p>
+
+                <p>{{ room.description|linebreaksbr }}</p>
+
+                <h6 class="mt-4">Amenities</h6>
+
+                {% for a in room.get_amenities %}
+                <span class="pill">
+                        <i class="bi {{ a.icon }}"></i> {{ a.name }}
+                    </span>
+                {% empty %}
+                <span class="text-muted">None listed</span>
+                {% endfor %}
+
+            </div>
+
+            <!-- Property Location Map -->
+            <div class="card-soft p-4 mt-4">
+                <h6>Property Location</h6>
+                <div id="room-map"
+                     style="height:350px; width:100%; border-radius:12px;">
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="card-soft p-4 mt-4">
+
+                <h6>
+                    Reviews
+
+                    {% if avg %}
+                    <span class="text-accent">
+                            ★ {{ avg|floatformat:1 }}
+                        </span>
+                    {% endif %}
+                </h6>
+
+                {% for r in reviews %}
+
+                <div class="border-bottom py-2">
+
+                    <strong>{{ r.from_user.profile.name }}</strong>
+
+                    <span class="text-accent">
+                            {{ r.rating }}★
+                        </span>
+
+                    <div class="text-muted small">
+                        {{ r.comment }}
+                    </div>
+
+                </div>
+
+                {% empty %}
+
+                <p class="text-muted m-0">No reviews yet.</p>
+
+                {% endfor %}
+
+                {% if can_review %}
+
+                <form method="post"
+                      action="{% url 'rooms:review' room.pk %}"
+                      class="mt-3">
+
+                    {% csrf_token %}
+
+                    <div class="row g-2">
+
+                        <div class="col-3">
+                            <select name="rating" class="form-select">
+                                {% for n in "54321" %}
+                                <option>{{ n }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-7">
+                            <input name="comment"
+                                   class="form-control"
+                                   placeholder="Your experience">
+                        </div>
+
+                        <div class="col-2">
+                            <button class="btn btn-primary w-100">
+                                Post
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- Owner Sidebar -->
+        <div class="col-lg-4">
+
+            <div class="card-soft p-4"
+                 style="position:sticky;top:90px">
+
+                <div class="price fs-2">
+                    ৳{{ room.rent }}
+                    <small class="text-muted fs-6 fw-normal">
+                        / month
+                    </small>
+                </div>
+
+                <hr>
+
+                <div class="d-flex gap-3 align-items-center mb-3">
+
+                    <div class="avatar">
+                        {{ room.owner.profile.name|slice:":1" }}
+                    </div>
+
+                    <div>
+
+                        <strong>{{ room.owner.profile.name }}</strong>
+
+                        {% if room.owner.profile.is_verified %}
+                        <i class="bi bi-patch-check-fill text-primary-c"></i>
+                        {% endif %}
+
+                        <div class="small text-muted">
+                            Property owner
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% if show_phone %}
+
+                <div class="alert alert-success py-2">
+                    <i class="bi bi-telephone"></i>
+                    {{ room.owner.profile.phone|default:"Not provided" }}
+                </div>
+
+                {% else %}
+
+                <div class="small text-muted mb-3">
+                    <i class="bi bi-lock"></i>
+                    Phone is shown after the owner accepts your request.
+                </div>
+
+                {% endif %}
+
+                {% if role == "tenant" %}
+
+                {% if rental %}
+
+                <div class="text-center">
+                    Your request:
+                    <span class="badge-status st-{{ rental.status }}">
+                                {{ rental.get_status_display }}
+                            </span>
+                </div>
+
+                {% elif room.is_available %}
+
+                <form method="post"
+                      action="{% url 'rooms:send_request' room.pk %}">
+
+                    {% csrf_token %}
+
+                    <textarea name="message"
+                              class="form-control mb-2"
+                              rows="2"
+                              placeholder="Short message to the owner (optional)"></textarea>
+
+                    <button class="btn btn-accent w-100">
+                        <i class="bi bi-send"></i>
+                        Send rental request
+                    </button>
+
+                </form>
+
+                {% else %}
+
+                <div class="text-muted text-center">
+                    This room is no longer available.
+                </div>
+
+                {% endif %}
+
+                {% elif not user.is_authenticated %}
+
+                <a class="btn btn-primary w-100"
+                   href="{% url 'accounts:login' %}?next={{ request.path }}">
+                    Login to send a request
+                </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endwith %}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const lat = parseFloat("{{ room.latitude|default_if_none:'' }}");
+        const lng = parseFloat("{{ room.longitude|default_if_none:'' }}");
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+
+            document.getElementById("room-map").innerHTML =
+                "Location not available.";
+
+            return;
+        }
+
+        var map = L.map("room-map").setView([lat, lng], 15);
+
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+            {
+                subdomains: "abc",
+                maxZoom: 19,
+                attribution:
+                    '&copy; OpenStreetMap contributors, Tiles style by HOT'
+            }
+        ).addTo(map);
+        L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup("{{ room.title|escapejs }}")
+            .openPopup();
+
+    });
+
+</script>
+
+{% endblock %}
